@@ -1,0 +1,11 @@
+<launch>
+    <node pkg="ros_cc_detector" name="critical_points_detector" type="detection" output="screen" respawn="true">
+      <param name="scan_topic" value="/scan_filtered"/>
+      <param name="output_frame" value="hokuyo_2d"/>
+      <param name="output_topic" value="/simulation/move_base/TebLocalPlannerROS/critical_corners"/>
+      <param name="base_frame" value="hokuyo_2d"/>
+      <param name="min_occlusion" value="0.8"/>
+      <param name="dist_threshold" value="1"/>
+      <param name="dist_tolerance" value="0.4"/>
+	  </node>
+</launch>
