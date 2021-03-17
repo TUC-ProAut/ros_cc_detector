@@ -1,11 +1,16 @@
 <launch>
+    <node pkg="topic_tools" type="relay" name="laser1_relay" args="/simulation/utm30/scan /simulation/scans"/>
+    <node pkg="topic_tools" type="relay" name="laser2_relay" args="/simulation/ust20/scan /simulation/scans"/>
+
     <node pkg="ros_cc_detector" name="critical_points_detector" type="detection" output="screen" respawn="true">
-      <param name="scan_topic" value="/scan_filtered"/>
-      <param name="output_frame" value="hokuyo_2d"/>
+      <param name="scan_topics" value="/simulation/ust20/scan /simulation/utm30/scan"/>
+      <param name="cmd_vel_topic" value="/simulation/cmd_vel"/>
+      <param name="output_frame" value="base_link_sim"/>
       <param name="output_topic" value="/simulation/move_base/TebLocalPlannerROS/critical_corners"/>
-      <param name="base_frame" value="hokuyo_2d"/>
+      <param name="base_frame" value="base_link_sim"/>
       <param name="min_occlusion" value="0.8"/>
       <param name="dist_threshold" value="1"/>
       <param name="dist_tolerance" value="0.4"/>
 	  </node>
+    <node type="rviz" name="rviz" pkg="rviz" />
 </launch>
