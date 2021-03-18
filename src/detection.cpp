@@ -52,7 +52,7 @@ public:
   vector<string> input_topics;
   vector<bool> clouds_modified;
 
-  vector<pcl::PointCloud<pcl::PointXYZ>> cc_clouds;
+  vector<pcl::PointCloud<pcl::PointXYZ> > cc_clouds;
 
   double theta_vel;
 
