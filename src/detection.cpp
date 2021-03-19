@@ -47,7 +47,7 @@ public:
   ros::Publisher pub, pub_vis;
   laser_geometry::LaserProjection projector_;
   tf::TransformListener listener;
-  tf::StampedTransform transform;
+  tf::StampedTransform transform, transform_to_base;
 
   vector<string> input_topics;
   vector<bool> clouds_modified;
@@ -155,6 +155,12 @@ void Detector::scanCallback(const sensor_msgs::LaserScanConstPtr &msg, std::stri
   } catch (tf::TransformException ex) {
     ROS_ERROR("%s", ex.what());
   }
+  try {
+    listener.lookupTransform(base_frame_, msg->header.frame_id, ros::Time(),
+                             this->transform_to_base);
+  } catch (tf::TransformException ex) {
+    ROS_ERROR("%s", ex.what());
+  }
 
   // convert ranges to 2D points
   sensor_msgs::PointCloud2 cloud_ros;
@@ -162,11 +168,13 @@ void Detector::scanCallback(const sensor_msgs::LaserScanConstPtr &msg, std::stri
 
   // transform point cloud
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_base(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_output(
       new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(cloud_ros, *cloud);
 
   pcl_ros::transformPointCloud(*cloud, *cloud_output, this->transform);
+  pcl_ros::transformPointCloud(*cloud, *cloud_base, this->transform_to_base);
 
   // save modification state of current scan
   for(int j=0; j<input_topics.size(); ++j)
@@ -197,7 +205,7 @@ void Detector::scanCallback(const sensor_msgs::LaserScanConstPtr &msg, std::stri
           float y = cloud_output->points[i - 1].y;
           
           // check if point is not behind the velocity vector 
-          float theta_sens = atan2(cloud_output->points[i].y+this->transform.getOrigin().y(),cloud_output->points[i].x+this->transform.getOrigin().x());
+          float theta_sens = atan2(cloud_base->points[i].y+this->transform.getOrigin().y(),cloud_base->points[i].x+this->transform_to_base.getOrigin().x());
           float theta_diff = this->theta_vel-theta_sens;
           // wrap to [-pi,pi]
           theta_diff = abs(atan2(sin(theta_diff),cos(theta_diff)));
@@ -238,7 +246,7 @@ void Detector::scanCallback(const sensor_msgs::LaserScanConstPtr &msg, std::stri
           negativ_jump = 0;
 
           // check if point is not behind the velocity vector 
-          float theta_sens = atan2(cloud_output->points[i].y+this->transform.getOrigin().y(),cloud_output->points[i].x+this->transform.getOrigin().x());
+          float theta_sens = atan2(cloud_base->points[i].y+this->transform.getOrigin().y(),cloud_base->points[i].x+this->transform_to_base.getOrigin().x());
           float theta_diff=this->theta_vel-theta_sens;
           // wrap to [-pi,pi]
           theta_diff = abs(atan2(sin(theta_diff),cos(theta_diff)));
