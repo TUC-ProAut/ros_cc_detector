@@ -1,7 +1,4 @@
 <launch>
-    <node pkg="topic_tools" type="relay" name="laser1_relay" args="/simulation/utm30/scan /simulation/scans"/>
-    <node pkg="topic_tools" type="relay" name="laser2_relay" args="/simulation/ust20/scan /simulation/scans"/>
-
     <node pkg="ros_cc_detector" name="critical_points_detector" type="detection" output="screen" respawn="true">
       <param name="scan_topics" value="/simulation/ust20/scan /simulation/utm30/scan"/>
       <param name="cmd_vel_topic" value="/simulation/cmd_vel"/>
